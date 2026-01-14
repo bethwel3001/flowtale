@@ -39,6 +39,12 @@ export const StoryProvider = ({ children }: { children: ReactNode }) => {
     setStories(prevStories =>
       prevStories.map(story => {
         if (story.id === storyId) {
+          // Make sure parent node's branching paths are consistent
+          const parentNode = story.nodes[node.parentId!];
+          if (parentNode && !parentNode.branchingPaths.includes(node.choice!)) {
+            parentNode.branchingPaths.push(node.choice!);
+          }
+          
           const newNodes = { ...story.nodes, [node.id]: node };
           return { ...story, nodes: newNodes, currentNodeId: node.id };
         }

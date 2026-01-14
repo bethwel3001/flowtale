@@ -13,7 +13,7 @@ export async function startStory(
   topic: string,
   genre: string
 ): Promise<Omit<Story, "id">> {
-  const { storyline, branchingPaths } = await suggestStoryStart({ topic });
+  const { characters, storyline, branchingPaths } = await suggestStoryStart({ topic, genre });
   const rootNodeId = crypto.randomUUID();
   const rootNode: StoryNode = {
     id: rootNodeId,
@@ -26,6 +26,7 @@ export async function startStory(
   return {
     title: topic,
     genre,
+    characters: characters,
     nodes: {
       [rootNodeId]: rootNode,
     },
@@ -48,8 +49,10 @@ export async function continueStory(
     userChoice: choice,
     storyGenre: story.genre,
   });
-
-  const { branchingPaths } = await suggestStoryStart({ topic: newStoryline });
+  
+  // We can call a different, simpler flow here that only generates branching paths.
+  // For now, we'll reuse suggestStoryStart and just take its branching paths.
+  const { branchingPaths } = await suggestStoryStart({ topic: newStoryline, genre: story.genre });
 
   return {
     newStoryPart: newStoryline,

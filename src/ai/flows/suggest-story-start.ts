@@ -13,11 +13,18 @@ import {z} from 'genkit';
 
 const SuggestStoryStartInputSchema = z.object({
   topic: z.string().describe('A topic or prompt for the story.'),
+  genre: z.string().describe('The genre of the story.'),
 });
 
 export type SuggestStoryStartInput = z.infer<typeof SuggestStoryStartInputSchema>;
 
+const CharacterSchema = z.object({
+  name: z.string().describe('The name of the character.'),
+  description: z.string().describe('A brief, vivid description of the character.'),
+});
+
 const SuggestStoryStartOutputSchema = z.object({
+  characters: z.array(CharacterSchema).describe('The main characters of the story.'),
   storyline: z.string().describe('A suggested starting storyline.'),
   branchingPaths: z.array(z.string()).describe('Initial branching paths for the story.'),
 });
@@ -32,12 +39,18 @@ const suggestStoryStartPrompt = ai.definePrompt({
   name: 'suggestStoryStartPrompt',
   input: {schema: SuggestStoryStartInputSchema},
   output: {schema: SuggestStoryStartOutputSchema},
-  prompt: `You are a creative story writer. Given a topic, generate a storyline and suggest branching paths.
+  prompt: `You are a creative story writer. Given a topic and genre, create a compelling starting point for a story.
+
+You must define 2-3 main characters with vivid descriptions.
+Then, write an opening storyline that introduces the setting and the initial situation.
+Finally, suggest a few branching paths for the user to choose from.
 
 Topic: {{{topic}}}
+Genre: {{{genre}}}
 
+Characters:
 Storyline:
-Branching Paths:`, // Instructions to generate initial branching paths for the story.
+Branching Paths:`, 
 });
 
 const suggestStoryStartFlow = ai.defineFlow(

@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { continueStory } from '@/lib/actions';
-import { Loader2, ArrowLeft, Share2, Download } from 'lucide-react';
+import { Loader2, ArrowLeft, Share2, Download, Users } from 'lucide-react';
 import { StoryVisualizer } from '@/components/story-visualizer';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function StoryPage() {
   const router = useRouter();
@@ -20,19 +21,22 @@ export default function StoryPage() {
   const { getStory, addNodeToStory, setCurrentNode } = useStory();
   const { toast } = useToast();
   
-  const [story, setStory] = useState<Story | undefined>(undefined);
+  const storyId = Array.isArray(params.id) ? params.id[0] : params.id;
+  
+  const [story, setStory] = useState<Story | undefined>(() => getStory(storyId));
   const [isLoading, setIsLoading] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const storyId = Array.isArray(params.id) ? params.id[0] : params.id;
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // This is a workaround to get the latest story state from context
   const storyFromContext = getStory(storyId);
   useEffect(() => {
     if (storyFromContext) {
       setStory(storyFromContext);
+    } else {
+       // If story is not in context (e.g. page refresh), maybe redirect or show error
+       router.push('/');
     }
-  }, [storyFromContext]);
+  }, [storyFromContext, router]);
 
   const storyHistory = useMemo(() => {
     if (!story) return [];
@@ -49,11 +53,11 @@ export default function StoryPage() {
     if (!story) return null;
     return story.nodes[story.currentNodeId];
   }, [story]);
+  
+  const canEndStory = storyHistory.length >= 5;
 
   useEffect(() => {
-    // Reset selected choice when the current node changes
     setSelectedChoice(null);
-    // Scroll to bottom
     if (scrollAreaRef.current) {
       setTimeout(() => {
         const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
@@ -78,16 +82,13 @@ export default function StoryPage() {
     setSelectedChoice(choice);
     setIsLoading(true);
     try {
-      // Find which child node corresponds to the choice
-      const nextNodeId = Object.values(story.nodes).find(
+      const existingNode = Object.values(story.nodes).find(
         (node) => node.parentId === currentNode.id && node.choice === choice
-      )?.id;
+      );
 
-      if (nextNodeId) {
-        // If the node already exists, just navigate to it
-        setCurrentNode(story.id, nextNodeId);
+      if (existingNode) {
+        setCurrentNode(story.id, existingNode.id);
       } else {
-        // Otherwise, generate the new story part
         const result = await continueStory(story, choice);
         const newNodeId = crypto.randomUUID();
         const newNode: StoryNode = {
@@ -128,27 +129,24 @@ export default function StoryPage() {
           Back to Library
         </Button>
         <div className="flex items-center gap-2">
-            <Button variant="outline" disabled>
+            <Button variant="outline" disabled={!canEndStory}>
                 <Download className="mr-2 h-4 w-4" />
                 PDF
             </Button>
-            <Button variant="outline" disabled>
+            <Button variant="outline" disabled={!canEndStory}>
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
             </Button>
-            <Button variant="destructive" disabled>End Story</Button>
+            <Button variant="destructive" disabled={!canEndStory}>End Story</Button>
         </div>
       </div>
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-headline font-bold mb-2">{story.title}</h1>
-        <p className="text-muted-foreground">Genre: {story.genre}</p>
-      </div>
-
+      
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         <div className="lg:col-span-3">
-          <Card className="shadow-lg h-[60vh] flex flex-col">
+          <Card className="shadow-lg h-[75vh] flex flex-col">
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">Your Journey</CardTitle>
+              <CardTitle className="font-headline text-3xl md:text-4xl">{story.title}</CardTitle>
+              <CardDescription>Genre: {story.genre}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden p-0">
                 <ScrollArea className="h-full" ref={scrollAreaRef}>
@@ -174,45 +172,66 @@ export default function StoryPage() {
                     </div>
                 </ScrollArea>
             </CardContent>
-            <CardFooter className="flex-col items-start gap-4 border-t pt-6">
-              <h3 className="font-bold text-lg font-headline">What do you do next?</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                {currentNode.branchingPaths.length > 0 ? (
-                  currentNode.branchingPaths.map((choice, index) => {
-                    const isSelected = selectedChoice === choice;
-                    return (
-                      <motion.div key={index} whileTap={{ scale: 0.98 }}>
-                        <Button
-                          onClick={() => handleChoice(choice)}
-                          disabled={isLoading}
-                          variant={isSelected ? 'default' : 'outline'}
-                          className="text-left justify-start h-auto py-3 whitespace-normal w-full"
-                        >
-                          {isLoading && isSelected && (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          )}
-                          {choice}
-                        </Button>
-                      </motion.div>
-                    );
-                  })
-                ) : (
-                  <p className="text-muted-foreground">The path ends here... for now.</p>
-                )}
-              </div>
-            </CardFooter>
+            {currentNode.branchingPaths.length > 0 && (
+              <CardFooter className="flex-col items-start gap-4 border-t pt-6">
+                <h3 className="font-bold text-lg font-headline">What do you do next?</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                  {currentNode.branchingPaths.map((choice, index) => {
+                      const isSelected = selectedChoice === choice;
+                      return (
+                        <motion.div key={index} whileTap={{ scale: 0.98 }}>
+                          <Button
+                            onClick={() => handleChoice(choice)}
+                            disabled={isLoading}
+                            variant={isSelected ? 'default' : 'outline'}
+                            className="text-left justify-start h-auto py-3 whitespace-normal w-full"
+                          >
+                            {isLoading && isSelected && (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            {choice}
+                          </Button>
+                        </motion.div>
+                      );
+                    })}
+                </div>
+              </CardFooter>
+            )}
           </Card>
         </div>
         <div className="lg:col-span-2 lg:sticky top-20">
-          <Card className="h-[60vh] w-full">
-            <CardHeader>
-              <CardTitle className="font-headline">Your Narrative Map</CardTitle>
-              <CardDescription>Click a node to revisit that part of the story.</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[calc(100%-8rem)]">
-              <StoryVisualizer story={story} onNodeClick={handleNodeClick} />
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <h3 className="font-headline text-lg flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
+                    Characters
+                  </h3>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 p-2">
+                    {story.characters.map(char => (
+                      <div key={char.name}>
+                        <p className="font-bold text-base">{char.name}</p>
+                        <p className="text-sm text-muted-foreground">{char.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <Card className="h-[60vh] w-full">
+              <CardHeader>
+                <CardTitle className="font-headline">Your Narrative Map</CardTitle>
+                <CardDescription>Click a node to revisit that part of the story.</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[calc(100%-8rem)]">
+                <StoryVisualizer story={story} onNodeClick={handleNodeClick} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
