@@ -15,6 +15,7 @@ import { StoryVisualizer } from '@/components/story-visualizer';
 import { motion } from 'framer-motion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Separator } from '@/components/ui/separator';
 
 export default function StoryPage() {
   const router = useRouter();
@@ -154,6 +155,25 @@ export default function StoryPage() {
             <CardHeader>
               <CardTitle className="font-headline text-3xl md:text-4xl">{story.title}</CardTitle>
               <CardDescription>Genre: {story.genre}</CardDescription>
+              {story.characters && story.characters.length > 0 && (
+                <>
+                  <Separator className="my-4" />
+                  <div className="space-y-2">
+                    <h4 className="font-headline text-lg flex items-center gap-2">
+                      <Users className="w-5 h-5 text-primary" />
+                      Characters
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                      {story.characters.map(char => (
+                        <div key={char.name}>
+                          <p className="font-bold text-base">{char.name}</p>
+                          <p className="text-sm text-muted-foreground">{char.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden p-0">
                 <ScrollArea className="h-full" ref={scrollAreaRef}>
@@ -208,28 +228,7 @@ export default function StoryPage() {
         </div>
         <div className="lg:col-span-2 lg:sticky top-20">
           <div className="space-y-6">
-            <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-              <AccordionItem value="item-1">
-                <AccordionTrigger>
-                  <h3 className="font-headline text-lg flex items-center gap-2">
-                    <Users className="w-5 h-5 text-primary" />
-                    Characters
-                  </h3>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4 p-2">
-                    {story.characters?.map(char => (
-                      <div key={char.name}>
-                        <p className="font-bold text-base">{char.name}</p>
-                        <p className="text-sm text-muted-foreground">{char.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            <Card className="h-[60vh] w-full">
+            <Card className="h-[75vh] w-full">
               <CardHeader>
                 <CardTitle className="font-headline">Your Narrative Map</CardTitle>
                 <CardDescription>Click a node to revisit that part of the story.</CardDescription>
