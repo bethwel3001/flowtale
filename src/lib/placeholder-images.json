@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-background",
+      "description": "An abstract, magical background representing branching paths.",
+      "imageUrl": "https://images.unsplash.com/photo-1684089696366-17ed91c386ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMHBhdGhzfGVufDB8fHx8MTc2ODM4NzYyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract paths"
+    },
+    {
+      "id": "create-story-card",
+      "description": "An image of a person writing in a notebook.",
+      "imageUrl": "https://images.unsplash.com/photo-1748609422318-7301636fb625?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3cml0aW5nJTIwam91cm5hbHxlbnwwfHx8fDE3NjgzMDQ0NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "writing journal"
+    },
+    {
+      "id": "explore-stories-card",
+      "description": "An image of an open book with glowing pages.",
+      "imageUrl": "https://images.unsplash.com/photo-1663596373959-3a4ba7ab97de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxnbG93aW5nJTIwYm9va3xlbnwwfHx8fDE3NjgzMjE0MjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "glowing book"
+    }
+  ]
 }
