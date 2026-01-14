@@ -7,13 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useStory } from "@/lib/story-context";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ArrowRight, BookCopy, PenSquare, GitMerge, Star, Users, Download, BotMessageSquare } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { stories } = useStory();
   const heroImage = PlaceHolderImages.find(img => img.id === "hero-background");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const communityStats = [
-    { name: "Stories Created", value: stories.length, icon: BookCopy },
+    { name: "Stories Created", value: isClient ? stories.length : 0, icon: BookCopy },
     { name: "Community Stars", value: "1.2k", icon: Star },
     { name: "Active Contributors", value: "24", icon: Users },
     { name: "AI Invocations", value: "10k+", icon: BotMessageSquare },
@@ -77,12 +84,14 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-headline font-bold tracking-tighter sm:text-5xl">Your Story Library</h2>
-              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                {stories.length > 0 ? "Continue your adventures or start a new one." : "Your created stories will appear here. Let's create your first!"}
-              </p>
+              {isClient && (
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  {stories.length > 0 ? "Continue your adventures or start a new one." : "Your created stories will appear here. Let's create your first!"}
+                </p>
+              )}
             </div>
           </div>
-          {stories.length > 0 ? (
+          {isClient && stories.length > 0 ? (
             <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
               {stories.slice(0, 3).map((story) => (
                 <Card key={story.id} className="hover:shadow-lg transition-shadow bg-card/80 backdrop-blur-sm">
@@ -106,7 +115,7 @@ export default function Home() {
                 </Card>
               ))}
             </div>
-          ) : (
+          ) : isClient ? (
              <div className="text-center py-12">
                <p className="text-muted-foreground">No stories yet. Time to create one!</p>
                <Button asChild className="mt-4">
@@ -116,7 +125,7 @@ export default function Home() {
                   </Link>
                 </Button>
             </div>
-          )}
+          ) : null}
         </div>
       </section>
 
