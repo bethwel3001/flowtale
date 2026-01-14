@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -211,7 +212,7 @@ export default function StoryPage() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4 p-2">
-                    {story.characters.map(char => (
+                    {story.characters?.map(char => (
                       <div key={char.name}>
                         <p className="font-bold text-base">{char.name}</p>
                         <p className="text-sm text-muted-foreground">{char.description}</p>
