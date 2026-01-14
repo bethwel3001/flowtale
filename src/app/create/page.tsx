@@ -77,11 +77,11 @@ export default function CreateStoryPage() {
   }
 
   return (
-    <div className="container py-12">
+    <div className="container py-8 md:py-12">
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline text-3xl flex items-center gap-2">
+            <CardTitle className="font-headline text-2xl md:text-3xl flex items-center gap-2">
               <Wand2 className="w-7 h-7 text-primary" />
               Create a New Narrative
             </CardTitle>

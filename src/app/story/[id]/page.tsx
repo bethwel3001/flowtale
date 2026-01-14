@@ -40,7 +40,6 @@ export default function StoryPage() {
     if (storyFromContext) {
       setStory(storyFromContext);
     } else if (isClient) {
-       // If story is not in context (e.g. page refresh), maybe redirect or show error
        router.push('/');
     }
   }, [storyFromContext, isClient, router]);
@@ -130,27 +129,27 @@ export default function StoryPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <Button variant="ghost" onClick={() => router.push('/')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Library
         </Button>
-        <div className="flex items-center gap-2">
-            <Button variant="outline" disabled={!canEndStory}>
+        <div className="flex items-center gap-2 self-end sm:self-center">
+            <Button variant="outline" size="sm" disabled={!canEndStory}>
                 <Download className="mr-2 h-4 w-4" />
                 PDF
             </Button>
-            <Button variant="outline" disabled={!canEndStory}>
+            <Button variant="outline" size="sm" disabled={!canEndStory}>
                 <Share2 className="mr-2 h-4 w-4" />
                 Share
             </Button>
-            <Button asChild>
+            <Button asChild size="sm">
               <Link href="/create">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 New Story
               </Link>
             </Button>
-            <Button variant="destructive" disabled={!canEndStory}>End Story</Button>
+            <Button variant="destructive" size="sm" disabled={!canEndStory}>End Story</Button>
         </div>
       </div>
       
@@ -182,7 +181,7 @@ export default function StoryPage() {
           <CardContent className="p-0">
               <ScrollArea className="h-[50vh]" ref={scrollAreaRef}>
                   <div className="p-6">
-                  {storyHistory.map((node, index) => (
+                  {storyHistory.map((node) => (
                       <motion.div
                           key={node.id}
                           variants={cardVariants}
