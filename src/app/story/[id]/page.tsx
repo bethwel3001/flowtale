@@ -24,20 +24,26 @@ export default function StoryPage() {
   
   const storyId = Array.isArray(params.id) ? params.id[0] : params.id;
   
-  const [story, setStory] = useState<Story | undefined>(() => getStory(storyId));
+  const [story, setStory] = useState<Story | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  const storyFromContext = getStory(storyId);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const storyFromContext = useMemo(() => isClient ? getStory(storyId) : undefined, [isClient, getStory, storyId]);
+
   useEffect(() => {
     if (storyFromContext) {
       setStory(storyFromContext);
-    } else {
+    } else if (isClient) {
        // If story is not in context (e.g. page refresh), maybe redirect or show error
        router.push('/');
     }
-  }, [storyFromContext, router]);
+  }, [storyFromContext, isClient, router]);
 
   const storyHistory = useMemo(() => {
     if (!story) return [];
@@ -69,7 +75,7 @@ export default function StoryPage() {
     }
   }, [currentNode?.id]);
 
-  if (!story || !currentNode) {
+  if (!isClient || !story || !currentNode) {
     return (
       <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center text-muted-foreground">
         <Loader2 className="mr-2 h-6 w-6 animate-spin" />
