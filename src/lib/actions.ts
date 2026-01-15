@@ -2,6 +2,7 @@
 
 import { suggestStoryStart } from "@/ai/flows/suggest-story-start";
 import { generateNewStoryline } from "@/ai/flows/generate-new-storyline";
+import { summarizeStory } from "@/ai/flows/summarize-story";
 import type { Story, StoryNode } from "@/types";
 
 interface ContinueStoryResult {
@@ -58,4 +59,14 @@ export async function continueStory(
     newStoryPart: newStoryline,
     newBranchingPaths: branchingPaths,
   };
+}
+
+export async function endStory(story: Story, storyHistory: string[]) {
+    const { finalTitle, conclusion } = await summarizeStory({
+        storyHistory: storyHistory,
+        storyTitle: story.title,
+        storyGenre: story.genre,
+    });
+
+    return { finalTitle, conclusion };
 }

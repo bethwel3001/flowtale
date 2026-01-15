@@ -19,4 +19,7 @@ export interface Story {
   nodes: Record<string, StoryNode>;
   rootNodeId: string;
   currentNodeId: string;
+  isComplete?: boolean;
+  conclusion?: string;
+  finalTitle?: string;
 }

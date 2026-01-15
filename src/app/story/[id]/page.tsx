@@ -9,23 +9,36 @@ import type { Story, StoryNode } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { continueStory } from '@/lib/actions';
-import { Loader2, ArrowLeft, Share2, Download, Users, PlusCircle } from 'lucide-react';
+import { continueStory, endStory } from '@/lib/actions';
+import { Loader2, ArrowLeft, Share2, Download, Users, PlusCircle, Crown } from 'lucide-react';
 import { StoryVisualizer } from '@/components/story-visualizer';
 import { motion } from 'framer-motion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 export default function StoryPage() {
   const router = useRouter();
   const params = useParams();
-  const { getStory, addNodeToStory, setCurrentNode } = useStory();
+  const { getStory, addNodeToStory, setCurrentNode, updateStory } = useStory();
   const { toast } = useToast();
   
   const storyId = Array.isArray(params.id) ? params.id[0] : params.id;
   
   const [story, setStory] = useState<Story | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
@@ -60,7 +73,7 @@ export default function StoryPage() {
     return story.nodes[story.currentNodeId];
   }, [story]);
   
-  const canEndStory = storyHistory.length >= 5;
+  const canEndStory = storyHistory.length >= 3;
 
   useEffect(() => {
     setSelectedChoice(null);
@@ -82,6 +95,25 @@ export default function StoryPage() {
       </div>
     );
   }
+  
+  const handleEndStory = async () => {
+    if (isEnding || !story) return;
+    setIsEnding(true);
+    try {
+      const historyText = storyHistory.map(node => node.storyPart);
+      const result = await endStory(story, historyText);
+      updateStory(story.id, { ...result, isComplete: true });
+      router.push(`/story/${story.id}/summary`);
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Could not write the ending.',
+        description: 'There was an issue generating the story conclusion. Please try again.',
+      });
+      setIsEnding(false);
+    }
+  };
 
   const handleChoice = async (choice: string) => {
     if (isLoading) return;
@@ -119,6 +151,10 @@ export default function StoryPage() {
   };
 
   const handleNodeClick = (nodeId: string) => {
+    if(story.isComplete) {
+        router.push(`/story/${story.id}/summary`);
+        return;
+    }
     setCurrentNode(story.id, nodeId);
   }
 
@@ -135,21 +171,32 @@ export default function StoryPage() {
           Back to Library
         </Button>
         <div className="flex items-center gap-2 self-end sm:self-center">
-            <Button variant="outline" size="sm" disabled={!canEndStory}>
-                <Download className="mr-2 h-4 w-4" />
-                PDF
-            </Button>
-            <Button variant="outline" size="sm" disabled={!canEndStory}>
-                <Share2 className="mr-2 h-4 w-4" />
-                Share
-            </Button>
             <Button asChild size="sm">
               <Link href="/create">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 New Story
               </Link>
             </Button>
-            <Button variant="destructive" size="sm" disabled={!canEndStory}>End Story</Button>
+             <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" disabled={!canEndStory || isEnding || story.isComplete}>
+                    {isEnding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Crown className="mr-2 h-4 w-4" />}
+                    {story.isComplete ? 'Story Finished' : 'End Story'}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to end your story?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will conclude your adventure. The AI will write a final summary, and you won't be able to make new choices.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep Writing</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleEndStory}>End the Adventure</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
         </div>
       </div>
       
@@ -202,7 +249,7 @@ export default function StoryPage() {
                   </div>
               </ScrollArea>
           </CardContent>
-          {currentNode.branchingPaths.length > 0 && (
+          {currentNode.branchingPaths.length > 0 && !story.isComplete && (
             <CardFooter className="flex-col items-start gap-4 border-t pt-6">
               <h3 className="font-bold text-lg font-headline">What do you do next?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -231,7 +278,7 @@ export default function StoryPage() {
         
         <div className="space-y-4 pt-8">
             <h3 className="font-headline text-2xl">Your Narrative Map</h3>
-            <p className="text-muted-foreground">Click a node to revisit that part of the story.</p>
+            <p className="text-muted-foreground">Click a node to revisit that part of the story. If the story is finished, it will take you to the summary.</p>
             <div className="h-[60vh] w-full">
               <StoryVisualizer story={story} onNodeClick={handleNodeClick} />
             </div>
