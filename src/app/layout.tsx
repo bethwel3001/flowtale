@@ -5,7 +5,7 @@ import { AppProviders } from './providers';
 import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
-  title: 'StoryForge',
+  title: 'FlowTale+',
   description: 'An interactive storytelling game where your choices shape the plot, powered by AI.',
 };
 

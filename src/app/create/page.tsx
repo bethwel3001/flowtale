@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { startStory } from "@/lib/actions";
 import { useStory } from "@/lib/story-context";
-import { Wand2, Loader2 } from "lucide-react";
+import { Loader2, PenSquare } from "lucide-react";
 
 const formSchema = z.object({
   topic: z.string().min(10, {
@@ -79,10 +79,9 @@ export default function CreateStoryPage() {
   return (
     <div className="container py-8 md:py-12">
       <div className="max-w-2xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl md:text-3xl flex items-center gap-2">
-              <Wand2 className="w-7 h-7 text-primary" />
+        <Card className="bg-card/80 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <CardTitle className="font-headline text-3xl md:text-4xl">
               Create a New Narrative
             </CardTitle>
             <CardDescription>
@@ -91,7 +90,7 @@ export default function CreateStoryPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="topic"
@@ -130,19 +129,21 @@ export default function CreateStoryPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Conjuring your story...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      Begin Adventure
-                    </>
-                  )}
-                </Button>
+                <div className="flex justify-center pt-4">
+                  <Button type="submit" disabled={isLoading} size="lg">
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Conjuring...
+                      </>
+                    ) : (
+                      <>
+                        <PenSquare className="mr-2 h-4 w-4" />
+                        Begin Adventure
+                      </>
+                    )}
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
