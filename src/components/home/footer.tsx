@@ -11,10 +11,6 @@ const Footer =()=>{
                     <Download className="w-4 h-4" />
                     <p className="text-sm">Mobile apps coming soon!</p>
                 </div>
-                <div className="flex gap-4">
-                    <a href="#" className="text-muted-foreground hover:text-foreground">Twitter</a>
-                    <a href="#" className="text-muted-foreground hover:text-foreground">Discord</a>
-                </div>
             </div>
         </footer>
     )

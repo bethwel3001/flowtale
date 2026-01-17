@@ -3,6 +3,7 @@
 import { suggestStoryStart } from "@/ai/flows/suggest-story-start";
 import { generateNewStoryline } from "@/ai/flows/generate-new-storyline";
 import { summarizeStory } from "@/ai/flows/summarize-story";
+import { generateBranchingPaths } from "@/ai/flows/generate-branching-paths";
 import type { Story, StoryNode } from "@/types";
 
 interface ContinueStoryResult {
@@ -51,9 +52,7 @@ export async function continueStory(
     storyGenre: story.genre,
   });
   
-  // We can call a different, simpler flow here that only generates branching paths.
-  // For now, we'll reuse suggestStoryStart and just take its branching paths.
-  const { branchingPaths } = await suggestStoryStart({ topic: newStoryline, genre: story.genre });
+  const { branchingPaths } = await generateBranchingPaths({ storyline: newStoryline, genre: story.genre });
 
   return {
     newStoryPart: newStoryline,

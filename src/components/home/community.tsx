@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import {Button} from "@/components/ui/button";
 import {BookCopy, BotMessageSquare, GitMerge, Star, Users} from "lucide-react";
 
@@ -15,9 +15,9 @@ const Community =()=>{
 
     const communityStats = [
         { name: "Stories Created", value: isClient ? stories.length : 0, icon: BookCopy },
-        { name: "Community Stars", value: "1.2k", icon: Star },
-        { name: "Active Contributors", value: "24", icon: Users },
-        { name: "AI Invocations", value: "10k+", icon: BotMessageSquare },
+        { name: "Community Stars", value: "2", icon: Star },
+        { name: "Active Contributors", value: "2", icon: Users },
+        { name: "AI Invocations", value: "12k+", icon: BotMessageSquare },
     ];
     return(
         <section className="w-full flex flex-col justify-center items-center mx-auto py-16 md:py-24 lg:py-32">

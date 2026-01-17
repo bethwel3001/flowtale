@@ -1,13 +1,5 @@
-import Footer from "@/components/home/footer";
-import Community from "@/components/home/community";
-import Hero from "@/components/home/hero";
-import About from "@/components/home/about";
-import Library from "@/components/home/library";
-
-export{
-    Footer,
-    Community,
-    Hero,
-    About,
-    Library
-}
+export { default as Footer } from "@/components/home/footer";
+export { default as Community } from "@/components/home/community";
+export { default as Hero } from "@/components/home/hero";
+export { default as About } from "@/components/home/about";
+export { default as Library } from "@/components/home/library";
